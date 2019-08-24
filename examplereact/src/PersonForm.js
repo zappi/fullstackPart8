@@ -10,7 +10,12 @@ const PersonForm = props => {
   const submit = async e => {
     e.preventDefault();
     await props.addPerson({
-      variables: { name, phone, street, city }
+      variables: {
+        name,
+        street,
+        city,
+        phone: phone.length > 0 ? phone : null
+      }
     });
 
     setName('');

@@ -25,7 +25,6 @@ const Authors = props => {
   }
 
   if (!props.authors.loading) {
-    console.log(props.authors);
     const authors = props.authors.data.allAuthors;
 
     return (
