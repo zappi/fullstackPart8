@@ -1,8 +1,35 @@
 import React, { useState } from 'react';
+import { gql } from 'apollo-boost';
+import { useQuery, useMutation } from '@apollo/react-hooks';
+
+const EDIT_BIRTHYEAR = gql`
+  mutation editBirthyear($name: String!, $setBornTo: Int!) {
+    editAuthor(name: $name, setBornTo: $setBornTo) {
+      name
+      born
+    }
+  }
+`;
+
+const ALL_AUTHORS = gql`
+  {
+    allAuthors {
+      name
+      born
+      bookCount
+    }
+  }
+`;
 
 const Authors = props => {
   const [name, setName] = useState();
   const [born, setBorn] = useState('');
+
+  const [editBirthyear] = useMutation(EDIT_BIRTHYEAR, {
+    refetchQueries: [{ query: ALL_AUTHORS }]
+  });
+
+  let authors = useQuery(ALL_AUTHORS);
 
   const handleAuthorChange = e => {
     setName(e.target.value);
@@ -12,7 +39,7 @@ const Authors = props => {
     e.preventDefault();
     const bornAsInt = Number(born);
 
-    await props.setBirthYear({
+    await editBirthyear({
       variables: { name: name, setBornTo: bornAsInt }
     });
 
@@ -24,8 +51,8 @@ const Authors = props => {
     return null;
   }
 
-  if (!props.authors.loading) {
-    const authors = props.authors.data.allAuthors;
+  if (!authors.loading) {
+    const visibleAuthors = authors.data.allAuthors;
 
     return (
       <div>
@@ -37,7 +64,7 @@ const Authors = props => {
               <th>born</th>
               <th>books</th>
             </tr>
-            {authors.map(a => (
+            {visibleAuthors.map(a => (
               <tr key={a.name}>
                 <td>{a.name}</td>
                 <td>{a.born}</td>
@@ -51,7 +78,7 @@ const Authors = props => {
           <div>
             name
             <select value={name} onChange={handleAuthorChange}>
-              {authors.map(a => {
+              {visibleAuthors.map(a => {
                 return <option key={a.name}>{a.name}</option>;
               })}
             </select>
