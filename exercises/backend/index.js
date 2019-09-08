@@ -54,7 +54,6 @@ const typeDefs = gql`
   }
 
   type Query {
-    bookCount: Int!
     authorCount: Int!
     allBooks(author: String, genre: String): [Book]
     allAuthors: [Author]
@@ -79,10 +78,8 @@ const typeDefs = gql`
 
 const resolvers = {
   Query: {
-    bookCount: async () => await Book.find({}).length,
     authorCount: async () => await Author.find({}).length,
 
-    //kato toi
     allBooks: async (root, args) => {
       console.log(args);
       if (!args.author && !args.genre) {
@@ -101,7 +98,8 @@ const resolvers = {
       return returnedBooks;
     },
     allAuthors: async () => {
-      return await Author.find({});
+      console.log('lol');
+      return await Author.find({}).populate('book');
     },
     me: async (root, args, context) => {
       console.log(context);
